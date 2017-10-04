@@ -5,7 +5,7 @@ function [SymbioticModel,AlaAdjustedTissueModel] = BuildSymbioticModel(TissueMod
 Smel = readCbModel(['Data' filesep 'Smel.xml']);
 %Replace the Reaction Names and Metabolite Names by something "readable"
 Smel.rxns = strrep(Smel.rxnNames,' S','_S');
-Smel.mets = strcat(Smel.metNames,'[S]');
+Smel.mets = regexprep(Smel.metNames,'_S$','[S]');
 %There are some compounds in the intermembrane Space
 Smel.mets{975} = 'PROTON[I]';
 OrigSmel = Smel;
