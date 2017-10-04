@@ -9,8 +9,8 @@ end
 reacpos = find(ismember(model.rxns,reactions));
 model = addMetabolite(model,name,name,'','','','','',0,0);
 %This model is no longer useable by optimizecbmodel...
-model.bub(end+1) = ub;
-model.blb(end+1) = lb;
+model.bub(end) = ub;
+model.blb(end) = lb;
 %Add the metabolite to all reactions.
 model.S(end,reacpos) = coefs;
 

@@ -203,21 +203,21 @@ NoPenaltyNightAmmonium = find(ismember(NightAmmoniumModel.rxns,Transporters));
 CoreNightNitrate = find(ismember(NightNitrateModel.rxns,NightNitrateReacs));
 NoPenaltyNightNitrate = find(ismember(NightNitrateModel.rxns,Transporters));
 %%
-disp('Using fastcore to restricte Day Ammonium Model')
-A = fastcore(CoreDayAmmonium, DayAmmoniumModel,1e-4);
-DayAmmoniumModel = removeRxns(DayAmmoniumModel,setdiff(DayAmmoniumModel.rxns,DayAmmoniumModel.rxns(A)));
+disp('Using fastcore to restrict Day Ammonium Model')
+DayAmmoniumModel = fastcore(DayAmmoniumModel, CoreDayAmmonium, 1e-4);
+%DayAmmoniumModel = removeRxns(DayAmmoniumModel,setdiff(DayAmmoniumModel.rxns,DayAmmoniumModel.rxns(A)));
 
-disp('Using fastcore to restricte Day Nitrate Model')
-A = fastcore(CoreDayNitrate,DayNitrateModel,1e-4);
-DayNitrateModel = removeRxns(DayNitrateModel,setdiff(DayNitrateModel.rxns,DayNitrateModel.rxns(A)));
+disp('Using fastcore to restrict Day Nitrate Model')
+DayNitrateModel = fastcore(DayNitrateModel,CoreDayNitrate,1e-4);
+%DayNitrateModel = removeRxns(DayNitrateModel,setdiff(DayNitrateModel.rxns,DayNitrateModel.rxns(A)));
 
-disp('Using fastcore to restricte Night Nitrate Model')
-A = fastcore(CoreNightNitrate, NightNitrateModel,1e-4);
-NightNitrateModel = removeRxns(NightNitrateModel,setdiff(NightNitrateModel.rxns,NightNitrateModel.rxns(A)));
+disp('Using fastcore to restrict Night Nitrate Model')
+NightNitrateModel = fastcore(NightNitrateModel, CoreNightNitrate, 1e-4);
+%NightNitrateModel = removeRxns(NightNitrateModel,setdiff(NightNitrateModel.rxns,NightNitrateModel.rxns(A)));
 
-disp('Using fastcore to restricte Night Ammonium Model')
-A = fastcore(CoreNightAmmonium, NightAmmoniumModel,1e-4);
-NightAmmoniumModel = removeRxns(NightAmmoniumModel,setdiff(NightAmmoniumModel.rxns,NightAmmoniumModel.rxns(A)));
+disp('Using fastcore to restrict Night Ammonium Model')
+NightAmmoniumModel = fastcore(NightAmmoniumModel, CoreNightAmmonium, 1e-4);
+%NightAmmoniumModel = removeRxns(NightAmmoniumModel,setdiff(NightAmmoniumModel.rxns,NightAmmoniumModel.rxns(A)));
 
 disp('Adding Combined Biomass Reaction')
 %Combine All Models

@@ -13,7 +13,8 @@ for i = 1:numel(combinedFields)
 end
 [m1,n1] = size(model1.S);
 [m2,n2] = size(model2.S);
- 
-CombinedModel.rxnGeneMat = [model1.rxnGeneMat;model2.rxnGeneMat];
+if isfield(model1,'rxnGeneMat') && isfield(model2,'rxnGeneMat')
+    CombinedModel.rxnGeneMat = [model1.rxnGeneMat;model2.rxnGeneMat];
+end
 CombinedModel.S = [model1.S, sparse(m1,n2) ; sparse(m2,n1), model2.S];
 CombinedModel.genes = model1.genes;

@@ -7,7 +7,7 @@ Smel = readCbModel(['Data' filesep 'Smel.xml']);
 Smel.rxns = strrep(Smel.rxnNames,' S','_S');
 Smel.mets = strcat(Smel.metNames,'[S]');
 %There are some compounds in the intermembrane Space
-Smel.mets{975} = 'PROTON[I]'
+Smel.mets{975} = 'PROTON[I]';
 OrigSmel = Smel;
 %% Add Exchange Reactions
 %Add exchangers To test the Model

@@ -2,10 +2,10 @@ function AmmoniumScan(CombinedModel)
 %% Scan Ammonia
 
 if nargin == 0
-    CombinedModel = importMedicago();
+    CombinedModel = BuildTissueModel();
 end
 
-%Get the positions of the various Reactions and exchangers
+%% Get the positions of the various Reactions and exchangers
 WaterExchange = find(ismember(CombinedModel.rxns,{'Root_TEC_WATER','Leave_TCE_WATER','TSR_WATER','TRS_WATER'}));
 CombinedModel.lb(WaterExchange(1)) = min(CombinedModel.lb);
 CO2Exchange = find(ismember(CombinedModel.rxns,{'Root_TCE_CARBON-DIOXIDE','Leave_TCE_CARBON-DIOXIDE'}));
@@ -38,6 +38,26 @@ ATPSynthase_Root= find(ismember(CombinedModel.rxns,'Root_ATPSYN-RXN_M'));
 %Impose Night Coniditions and don't allow Glucose storage:
 CombinedModel.lb([LeaveHCO3Exchange,LightImport,LeaveBiomass]) = 0;
 CombinedModel.ub([LeaveHCO3Exchange,LightImport,LeaveBiomass]) = 0;
+
+Glycolysis = {'PGLUCISOM-RXN',{'6PFRUCTPHOS-RXN','2.7.1.90-RXN'},'F16ALDOLASE-RXN','GAPOXNPHOSPHN-RXN','PHOSGLYPHOS-RXN','3PGAREARR-RXN','2PGADEHYDRAT-RXN','PEPDEPHOS-RXN'};
+GlycRootPositions = {};
+GlycShootPositions = {};
+for i = 1:numel(Glycolysis)
+rootpos = [];
+shootpos = [];
+if iscell(Glycolysis{i})
+current = Glycolysis{i};
+for j = 1:numel(current)
+rootpos = [pos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')))];
+shootpos = [pos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')))];
+end
+else
+rootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')));
+shootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')));
+end
+GlycRootPositions{i} = rootpos;
+GlycShootPositions{i} = shootpos;
+end
 
 
 %Fix Biomass production to some "reasonable" amounts (i.e. the normal growth rate of 0.1 g/gDW)
@@ -88,15 +108,22 @@ scans = ScanDualReactionQP(CombinedModel,CombinedModel.rxns(Ammoniumuptake),Comb
 %Our TCA reaction is a reaction that normally runs in reverse, so just flip
 %the sign in the results.
 scans([TCA_shoot,TCA_root],:) = -scans([TCA_shoot,TCA_root],:);
+ProtonExchangePos = size(scans,1);
 scans(end+1,:) = scans(ProtonExchange,:) - scans(HCO3Exchange,:);
 %And combine the root and shoot TCA.
+TCAPos = size(scans,1);
 scans(end+1,:) = scans(TCA_shoot,:) + scans(TCA_root,:);
-
+for i = 1:numel(Glycolysis)
+    scans(end+1,:) = sum(scans(GlycRootPositions{i},:));
+end
+for i = 1:numel(Glycolysis)
+    scans(end+1,:) = sum(scans(GlycShootPositions{i},:));
+end
 Weights = linspace(minweight,maxweight,Steps);
 %%
 close all
 %Get some positions, that we might want to plot.
-FluxPos = [StarchImport, NitrateUptake,PPP_root,PPP_shoot,HCO3Exchange,ProtonExchange,GlycolysisEndRoot,GlycolysisEndShoot,GlycolysisStartRoot,GlycolysisStartShoot,ATPSynthase_Root,ATPSynthase_Shoot,TCA_shoot,TCA_root,size(scans,1)-1, size(scans,1)];
+FluxPos = [StarchImport, NitrateUptake,PPP_root,PPP_shoot,HCO3Exchange,ProtonExchange,GlycolysisEndRoot,GlycolysisEndShoot,GlycolysisStartRoot,GlycolysisStartShoot,ATPSynthase_Root,ATPSynthase_Shoot,TCA_shoot,TCA_root,ProtonExchangePos, TCAPos];
 FluxName = {'Starch consumption','Nitrate uptake','PPP in root','PPP in shoot','HCO$_3^-$export','Proton export','Glycolysis End Root','Glycolysis End Shoot','Glycolysis Start Root','Glycolysis Start Shoot','ATPSynthase in root', 'ATPSynthase in shoot','TCA in shoot','TCA in root','Charge Balance','TCA'};
 Starch = 1;
 Nitrate = 2;
@@ -114,12 +141,12 @@ TCAShoot = 13;
 TCARoot = 14;
 ChargeBalance = 15;
 TCA = 16;
-plotteditems = [Starch,Nitrate,Protons,HCO3,TCA, ATPSynShoot];
+plotteditems = [Starch,Nitrate,Protons,HCO3,TCA, ATPSynShoot,TCARoot,TCAShoot,ATPSynRoot];
 
 %Set up the figure and plot the scans.
 f = figure;
 f.Position = [100 100 1200 600];
-p = plot(Weights,scans(FluxPos(plotteditems),:),'LineWidth',3); 
+p = plot(Weights,scans((end-2*numel(Glycolysis)):(end-numel(Glycolysis)),:),'LineWidth',3); 
 caxes = gca;
 paper = gcf;
 paper.PaperSize = [5.5 2.5];
