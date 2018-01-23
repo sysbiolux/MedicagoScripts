@@ -1,4 +1,4 @@
-function OxWeightScan(SymbioticModel)
+function [NoMutScans, MutScans]= OxWeightScan(SymbioticModel)
 %Make a comparison Scan for different Availabilities of Nitrate in the
 %symbiotic and non Symbiotic models, with a maximal carbon amount
 %restricted by the Overnight starch amount, which is 0.0125*0.66g/g  or 
@@ -50,6 +50,7 @@ optOx = symsol2.x(OxygenPos);
 
 symscans = ScanSingleReactionQP(SymbioticModel,'TRSy_OXYGEN-MOLECULE',symsol.x(OxygenPos),maxscanval,scanpoints);
 
+NoMutScans = symscans;
 
 
 %%
@@ -145,6 +146,7 @@ symsolWOAla = parsimOpt(SymModelWithoutAlaDehydrog);
 SymModelWithoutAlaDehydrog.c(:) = 1;
 symscansWOAla = ScanSingleReactionQP(SymModelWithoutAlaDehydrog,'TRSy_OXYGEN-MOLECULE',symsolWOAla.x(OxygenPos),maxscanval,scanpoints);
 
+MutScans = symscansWOAla;
 
 %% 
 ReacIDs = {'TSyR_AMMONIA';'TSyR_L-ALPHA-ALANINE';'TRSy_VAL';'TRSy_LEU';'TRSy_ILE';'TRSy_OXYGEN-MOLECULE';'TRSy_GLT';'TSyR_L-ASPARTATE';'TSyR_AMMONIUM';'TRSy_MAL';'TRSy_SUC';'TSyE_Poly-Hydroxybutyrate'};

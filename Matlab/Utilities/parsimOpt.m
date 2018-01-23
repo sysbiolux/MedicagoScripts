@@ -11,6 +11,8 @@ model.lb(find(model.c)) = realsol(find(model.c));
 model.ub(find(model.c)) = realsol(find(model.c));
 %create an lp, that minimized the overall flux.
 lp2 = createSplitLP(model);
+%Set Objective to minimize flux.
+lp2.Model.obj(:) = -1;
 sol2 = lp2.solve();
 %And combine it again.
 maxminsol = sol2.x(1:numel(model.rxns)) - sol2.x((numel(model.rxns)+1):end);

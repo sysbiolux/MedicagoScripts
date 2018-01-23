@@ -3,11 +3,15 @@ function [SymbioticModel,AlaAdjustedTissueModel] = BuildSymbioticModel(TissueMod
 %REad the SMeliloti xml file
 %readCbModel needs to initialize tmpCharge!!
 Smel = readCbModel(['Data' filesep 'Smel.xml']);
+%The following differs for newer Cobra Versions, as there are differences
+%in SBML IO (newer versions are more stringent. 
+
 %Replace the Reaction Names and Metabolite Names by something "readable"
 Smel.rxns = strrep(Smel.rxnNames,' S','_S');
-Smel.mets = regexprep(Smel.metNames,'_S$','[S]');
+Smel.mets = regexprep(Smel.metNames,'(_S$)','[S]');
+Smel.mets = regexprep(Smel.mets,'(_I$)','[I]');
 %There are some compounds in the intermembrane Space
-Smel.mets{975} = 'PROTON[I]';
+%Smel.mets{975} = 'PROTON[I]';
 OrigSmel = Smel;
 %% Add Exchange Reactions
 %Add exchangers To test the Model

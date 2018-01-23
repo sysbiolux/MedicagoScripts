@@ -1,9 +1,11 @@
-function AmmoniumScan(CombinedModel)
+function TissueModel = AmmoniumScan(CombinedModel)
 %% Scan Ammonia
 
 if nargin == 0
     CombinedModel = BuildTissueModel();
 end
+
+TissueModel = CombinedModel;
 
 %% Get the positions of the various Reactions and exchangers
 WaterExchange = find(ismember(CombinedModel.rxns,{'Root_TEC_WATER','Leave_TCE_WATER','TSR_WATER','TRS_WATER'}));
@@ -39,24 +41,29 @@ ATPSynthase_Root= find(ismember(CombinedModel.rxns,'Root_ATPSYN-RXN_M'));
 CombinedModel.lb([LeaveHCO3Exchange,LightImport,LeaveBiomass]) = 0;
 CombinedModel.ub([LeaveHCO3Exchange,LightImport,LeaveBiomass]) = 0;
 
+%Also, don'T allow internal storage
+CombinedModel.lb([LeaveSuccinateStorage]) = 0;
+CombinedModel.ub([LeaveSuccinateStorage]) = 0;
+
+
 Glycolysis = {'PGLUCISOM-RXN',{'6PFRUCTPHOS-RXN','2.7.1.90-RXN'},'F16ALDOLASE-RXN','GAPOXNPHOSPHN-RXN','PHOSGLYPHOS-RXN','3PGAREARR-RXN','2PGADEHYDRAT-RXN','PEPDEPHOS-RXN'};
 GlycRootPositions = {};
 GlycShootPositions = {};
 for i = 1:numel(Glycolysis)
-rootpos = [];
-shootpos = [];
-if iscell(Glycolysis{i})
-current = Glycolysis{i};
-for j = 1:numel(current)
-rootpos = [pos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')))];
-shootpos = [pos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')))];
-end
-else
-rootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')));
-shootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')));
-end
-GlycRootPositions{i} = rootpos;
-GlycShootPositions{i} = shootpos;
+    rootpos = [];
+    shootpos = [];
+    if iscell(Glycolysis{i})
+        current = Glycolysis{i};
+        for j = 1:numel(current)
+            rootpos = [rootpos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')))];
+            shootpos = [shootpos ; find(~cellfun(@isempty , strfind(CombinedModel.rxns,current{j})) & ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')))];
+        end
+    else
+        rootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Root')));
+        shootpos = find(~cellfun(@isempty , strfind(CombinedModel.rxns,Glycolysis{i}))& ~cellfun(@isempty , strfind(CombinedModel.rxns,'Leave')));
+    end
+    GlycRootPositions{i} = rootpos;
+    GlycShootPositions{i} = shootpos;
 end
 
 
@@ -108,11 +115,12 @@ scans = ScanDualReactionQP(CombinedModel,CombinedModel.rxns(Ammoniumuptake),Comb
 %Our TCA reaction is a reaction that normally runs in reverse, so just flip
 %the sign in the results.
 scans([TCA_shoot,TCA_root],:) = -scans([TCA_shoot,TCA_root],:);
-ProtonExchangePos = size(scans,1);
 scans(end+1,:) = scans(ProtonExchange,:) - scans(HCO3Exchange,:);
+ProtonExchangePos = size(scans,1);
+
 %And combine the root and shoot TCA.
-TCAPos = size(scans,1);
 scans(end+1,:) = scans(TCA_shoot,:) + scans(TCA_root,:);
+TCAPos = size(scans,1);
 for i = 1:numel(Glycolysis)
     scans(end+1,:) = sum(scans(GlycRootPositions{i},:));
 end
@@ -141,12 +149,12 @@ TCAShoot = 13;
 TCARoot = 14;
 ChargeBalance = 15;
 TCA = 16;
-plotteditems = [Starch,Nitrate,Protons,HCO3,TCA, ATPSynShoot,TCARoot,TCAShoot,ATPSynRoot];
+plotteditems = [Starch,Nitrate,Protons,HCO3,TCA, ATPSynShoot];
 
 %Set up the figure and plot the scans.
 f = figure;
 f.Position = [100 100 1200 600];
-p = plot(Weights,scans((end-2*numel(Glycolysis)):(end-numel(Glycolysis)),:),'LineWidth',3); 
+p = plot(Weights,scans(FluxPos(plotteditems),:),'LineWidth',3); 
 caxes = gca;
 paper = gcf;
 paper.PaperSize = [5.5 2.5];

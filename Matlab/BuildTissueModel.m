@@ -244,4 +244,4 @@ disp('Testing the model')
 
 changeCobraSolver('ibm_cplex');
 optimizeCbModel(CombinedModel)
-CombinedModel = rmfield(CombinedModel,'modelVersion')
+CombinedModel = rmfield(CombinedModel,'modelVersion');
