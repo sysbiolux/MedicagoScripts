@@ -3,7 +3,7 @@ function CombinedModel = combineDistinctModels(model1, model2)
 % nothing in common
 combinedFields = intersect(fieldnames(model1),fieldnames(model2));
 
-combinedFields = setdiff(combinedFields,{'S','description','rxnGeneMat','genes'});
+combinedFields = setdiff(combinedFields,{'S','description','rxnGeneMat','genes','osenseStr','osense'});
 
 CombinedModel = struct();
 %Combine all fields
@@ -15,3 +15,4 @@ end
 [m2,n2] = size(model2.S);
 %We will ignore the genes for this... 
 CombinedModel.S = [model1.S, sparse(m1,n2) ; sparse(m2,n1), model2.S];
+CombinedModel.osenseStr = 'max';

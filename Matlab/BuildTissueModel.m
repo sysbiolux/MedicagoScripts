@@ -142,11 +142,13 @@ NightAmmoniaReacs = union(CoreReacs,CombinedModel.rxns([Ammoniumuptake,StarchImp
 NightNitrateReacs = union(CoreReacs,CombinedModel.rxns([NitrateUptake,StarchImport,LeaveBiomass,RootBiomass]));
 
 disp('Making Model Consistent')
+
 ConsistentCombined = fastcc(CombinedModel,1e-4);
 
 ConsistentModel = removeRxns(CombinedModel,setdiff(CombinedModel.rxns,CombinedModel.rxns(ConsistentCombined)));
 
-%save('ConsistentFromCombined_From_XML','CombinedModel','ConsistentModel','DayAmmoniaReacs','DayNitrateReacs','NightAmmoniaReacs','NightNitrateReacs','Transporters');
+
+save('ConsistentFromCombined_From_XML','CombinedModel','ConsistentModel','DayAmmoniaReacs','DayNitrateReacs','NightAmmoniaReacs','NightNitrateReacs','Transporters');
 
 %%
 %clear all

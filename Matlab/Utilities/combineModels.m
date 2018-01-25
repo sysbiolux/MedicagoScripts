@@ -3,7 +3,7 @@ function CombinedModel = combineModels(model1, model2)
 % that they share the set of genes And they have no metabolites in common
 combinedFields = intersect(fieldnames(model1),fieldnames(model2));
 
-combinedFields = setdiff(combinedFields,{'S','rxnGeneMat','genes'});
+combinedFields = setdiff(combinedFields,{'S','rxnGeneMat','genes','osenseStr'});
 
 CombinedModel = struct();
 %Combine all fields
@@ -18,3 +18,4 @@ if isfield(model1,'rxnGeneMat') && isfield(model2,'rxnGeneMat')
 end
 CombinedModel.S = [model1.S, sparse(m1,n2) ; sparse(m2,n1), model2.S];
 CombinedModel.genes = model1.genes;
+CombinedModel.osenseStr = 'max';
