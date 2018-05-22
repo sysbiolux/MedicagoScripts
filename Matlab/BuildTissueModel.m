@@ -5,7 +5,11 @@ if nargin == 1
 else
     OrigMedicago = importMedicago();
 end
-    
+%adjust pathes
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
+
 OrigMedicago.ub(ismember(OrigMedicago.rxns,'TCE_GLC')) = 0;
 OrigMedicago.lb(ismember(OrigMedicago.rxns,'TCE_GLC')) = 0;
 RootPresence = importdata(['Data' filesep 'RootPresenceCalls.csv']);
@@ -37,7 +41,7 @@ load(['Data' filesep 'GeneIDForPresenceCall.mat'])
 % Create Root and Shoot
 %clear all
 %load BaseData2;
-Medicago = OrigMedicago
+Medicago = OrigMedicago;
 
 %Remove ATPase and DEHOG
 ATPase = find(ismember(Medicago.rxns,'ATPase'));
@@ -142,11 +146,13 @@ NightAmmoniaReacs = union(CoreReacs,CombinedModel.rxns([Ammoniumuptake,StarchImp
 NightNitrateReacs = union(CoreReacs,CombinedModel.rxns([NitrateUptake,StarchImport,LeaveBiomass,RootBiomass]));
 
 disp('Making Model Consistent')
+
 ConsistentCombined = fastcc(CombinedModel,1e-4);
 
 ConsistentModel = removeRxns(CombinedModel,setdiff(CombinedModel.rxns,CombinedModel.rxns(ConsistentCombined)));
 
-%save('ConsistentFromCombined_From_XML','CombinedModel','ConsistentModel','DayAmmoniaReacs','DayNitrateReacs','NightAmmoniaReacs','NightNitrateReacs','Transporters');
+
+save('ConsistentFromCombined_From_XML','CombinedModel','ConsistentModel','DayAmmoniaReacs','DayNitrateReacs','NightAmmoniaReacs','NightNitrateReacs','Transporters');
 
 %%
 %clear all
@@ -219,6 +225,7 @@ disp('Using fastcore to restrict Night Ammonium Model')
 NightAmmoniumModel = fastcore(NightAmmoniumModel, CoreNightAmmonium, 1e-4);
 %NightAmmoniumModel = removeRxns(NightAmmoniumModel,setdiff(NightAmmoniumModel.rxns,NightAmmoniumModel.rxns(A)));
 
+%%
 disp('Adding Combined Biomass Reaction')
 %Combine All Models
 CombinedModelReacs = union(Transporters,union(union(NightAmmoniumModel.rxns,NightNitrateModel.rxns),union(DayAmmoniumModel.rxns,DayNitrateModel.rxns)));
@@ -245,3 +252,5 @@ disp('Testing the model')
 changeCobraSolver('ibm_cplex');
 optimizeCbModel(CombinedModel)
 CombinedModel = rmfield(CombinedModel,'modelVersion');
+rmpath([scriptPath filesep 'Utilities']);
+cd(origDir);

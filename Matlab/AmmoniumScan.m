@@ -1,9 +1,13 @@
 function TissueModel = AmmoniumScan(CombinedModel)
 %% Scan Ammonia
-
 if nargin == 0
     CombinedModel = BuildTissueModel();
 end
+
+%adjust pathes
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
 
 TissueModel = CombinedModel;
 
@@ -172,3 +176,5 @@ leg.Interpreter = 'latex';
 yl = ylabel('Fluxes in ($\mu mol~g^{-1} h^{-1}$)','Interpreter','latex','FontSize',20);
 xl = xlabel('Ammonium uptake flux in ($\mu mol~g^{-1} h^{-1}$)','Interpreter','latex','FontSize',20);
 
+cd(origDir);
+rmpath([scriptPath filesep 'Utilities']);

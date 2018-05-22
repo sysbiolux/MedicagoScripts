@@ -1,5 +1,10 @@
 function MedicagoNew = importMedicago()
 %Read the Medicago Model and bring it into a nicer Form.
+%adjust pathes
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
+
 
 MedicFromSBML = readCbModel(['Data' filesep 'MedicagoTruncatula.xml']);
 
@@ -44,3 +49,5 @@ Medic.ub(ismember(Medic.rxns,Biomassreacs)) = 1000;
 Medic.c(:) = 0;
 Medic.c(1) = 1; % The Ammonium importer.
 MedicagoNew = Medic;
+cd(origDir);
+rmpath([scriptPath filesep 'Utilities']);
