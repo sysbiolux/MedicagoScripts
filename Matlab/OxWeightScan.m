@@ -11,7 +11,10 @@ scanpoints = 50;
 maxOxUptake = 19.76;
 SymbioticBiomass = 0.1*0.8/24;
 
-
+%adapt pathes
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
 
 %The normal growth rate of Medicago is at ~0.1 g/gDay
 %Symbiotic growth is commonly somewhere between 60 and 90% of this
@@ -221,3 +224,6 @@ hatch(h1, 45, [1 1 1], '-',3,1);
 %(OBJ,ANGLE,COLOR,STYLE,STEP,WIDTH)
 %a1 =area(caxes, [floor(Vals(1)) Vals(1)], [max(caxes.YLim), max(caxes.YLim)], 'FaceColor','k','EdgeColor','none')
 %a2 =area(caxes, [floor(Vals(1)) Vals(1)], [min(caxes.YLim), min(caxes.YLim)], 'FaceColor','k','EdgeColor','none')
+
+cd(origDir)
+rmpath([scriptPath filesep 'Utilities']);

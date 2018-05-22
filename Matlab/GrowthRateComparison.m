@@ -7,6 +7,11 @@ function GrowthRateComparison(SymbioticModel,CombinedModel)
 %are different due to the adjustment in asparagine in the Symbiotic
 %condition.
 
+%adapt pathes)
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
+
 %restricted by the Overnight starch amount, which is 0.0125*0.66g/g  or 
 % 46.32 umol/g/h
 % 5.787037037
@@ -103,3 +108,5 @@ leg.Position = [0.5 0.45 0.3 0.2];
 set(caxes,'FontSize',18);
 set(caxes,'Position',[0.2 0.19 0.77 0.74],'LineWidth',2,'TickLabelInterpreter','latex','XLim',[0 25]);
 
+cd(origDir)
+rmpath([scriptPath filesep 'Utilities']);

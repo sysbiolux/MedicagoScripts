@@ -6,6 +6,11 @@ Smel = readCbModel(['Data' filesep 'Smel.xml']);
 %The following differs for newer Cobra Versions, as there are differences
 %in SBML IO (newer versions are more stringent. 
 
+scriptPath = fileparts(which(mfilename));
+origDir = cd(scriptPath);
+addpath([scriptPath filesep 'Utilities']);
+
+
 %Replace the Reaction Names and Metabolite Names by something "readable"
 Smel.rxns = strrep(Smel.rxnNames,' S','_S');
 Smel.mets = regexprep(Smel.metNames,'(_S$)','[S]');
@@ -203,3 +208,6 @@ SymbioticModel_Adjusted_For_Asn.lb(CITLyase) = 0;
 AsnSol = parsimOpt(SymbioticModel_Adjusted_For_Asn);
 fprintf('The maximal growth rate with Maintenance and irrev Citrate Lyase is %f\n', AsnSol.objval * 24);
 SymbioticModel = SymbioticModel_Adjusted_For_Asn;
+
+cd(origDir);
+rmpath([scriptPath filesep 'Utilities']);
