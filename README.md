@@ -21,7 +21,8 @@ It is recommended to use importMedicago, BuildTissueModel and BuildSymbioticMode
 
 The ScrumPy ([available here](http://mudshark.brookes.ac.uk/ScrumPy)) to Cplex interface is provided with the File ScrumPyQP.py in the ScrumPy directory.
 
-
+## Please cite:
+Pfau, T., Christian, N., Masakapalli, S. K., Sweetlove, L. J., Poolman, M. G., & Ebenhöh, O. (2018). The intertwined metabolism during symbiotic nitrogen fixation elucidated by metabolic modelling. Scientific reports, 8(1), 12504.
 
 
 
